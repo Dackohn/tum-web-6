@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useResources } from './hooks/useResources.js';
 import { useTheme } from './hooks/useTheme.js';
 import { ResourceCard } from './components/ResourceCard.jsx';
 import { ResourceForm } from './components/ResourceForm.jsx';
+import { FilterBar } from './components/FilterBar.jsx';
 import styles from './App.module.css';
 
 export default function App() {
@@ -11,6 +12,26 @@ export default function App() {
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing]   = useState(null);
+  const [search, setSearch]     = useState('');
+  const [category, setCategory] = useState('');
+  const [status, setStatus]     = useState('');
+  const [starredOnly, setStarredOnly] = useState(false);
+
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return resources.filter(r => {
+      if (starredOnly && !r.starred) return false;
+      if (category && r.category !== category) return false;
+      if (status && r.status !== status) return false;
+      if (q && !(
+        r.title.toLowerCase().includes(q) ||
+        r.notes.toLowerCase().includes(q) ||
+        r.tags.some(t => t.includes(q)) ||
+        r.url.toLowerCase().includes(q)
+      )) return false;
+      return true;
+    });
+  }, [resources, search, category, status, starredOnly]);
 
   function openAdd()   { setEditing(null); setFormOpen(true); }
   function openEdit(r) { setEditing(r); setFormOpen(true); }
@@ -37,18 +58,34 @@ export default function App() {
       </header>
 
       <main className={styles.main}>
+        {resources.length > 0 && (
+          <FilterBar
+            search={search} onSearch={setSearch}
+            category={category} onCategory={setCategory}
+            status={status} onStatus={setStatus}
+            starredOnly={starredOnly} onStarredOnly={setStarredOnly}
+            total={resources.length} filtered={filtered.length}
+          />
+        )}
+
         {loading ? (
           <p className={styles.loading}>Loading…</p>
-        ) : resources.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <div className={styles.empty}>
-            <span className={styles.emptyIcon}>📚</span>
-            <p>Nothing queued yet.</p>
-            <p className={styles.emptySub}>Add articles, videos, courses, and docs — then actually read them.</p>
-            <button className={styles.emptyBtn} onClick={openAdd}>+ Add resource</button>
+            {search || category || status || starredOnly ? (
+              <><span className={styles.emptyIcon}>🔍</span><p>No resources match your filters.</p></>
+            ) : (
+              <>
+                <span className={styles.emptyIcon}>📚</span>
+                <p>Nothing queued yet.</p>
+                <p className={styles.emptySub}>Add articles, videos, courses, and docs — then actually read them.</p>
+                <button className={styles.emptyBtn} onClick={openAdd}>+ Add resource</button>
+              </>
+            )}
           </div>
         ) : (
           <div className={styles.grid}>
-            {resources.map(r => (
+            {filtered.map(r => (
               <ResourceCard
                 key={r.id}
                 resource={r}
