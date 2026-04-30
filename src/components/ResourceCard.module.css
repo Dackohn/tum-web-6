@@ -1,0 +1,176 @@
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  cursor: default;
+}
+
+.card:hover {
+  border-color: var(--text-faint);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+/* Left-border accent by status */
+.queued      { border-left-color: var(--border); }
+.in_progress { border-left-color: #60a5fa; }
+.done        { border-left-color: #4ade80; }
+
+.done .titleText,
+.done .titleLink { opacity: 0.7; }
+
+/* ── Header row ──────────────────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.category {
+  font-size: 0.68rem;
+  color: var(--text-faint);
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+/* Status pill — click to advance */
+
+.statusPill {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: none;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.statusPill:hover  { opacity: 0.8; transform: scale(0.97); }
+.statusPill:active { transform: scale(0.94); }
+
+.s_queued      { background: var(--surface3); color: var(--text-faint); }
+.s_in_progress { background: rgba(96,165,250,0.15); color: #60a5fa; }
+.s_done        { background: rgba(74,222,128,0.12); color: #4ade80; }
+
+.priorityBadge {
+  color: var(--star);
+  font-size: 0.75rem;
+}
+
+/* ── Actions ─────────────────────────────────────────────────────────────── */
+
+.actions {
+  display: flex;
+  gap: 1px;
+  opacity: 0;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+
+.card:hover .actions { opacity: 1; }
+
+.iconBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-faint);
+  font-size: 0.95rem;
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
+}
+
+.iconBtn:hover  { background: var(--surface2); color: var(--text); }
+.iconBtn.starred { color: var(--star); opacity: 1; }
+.iconBtn.danger  { color: var(--danger); background: var(--danger-bg); }
+
+/* ── Title row ───────────────────────────────────────────────────────────── */
+
+.titleRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.titleLink {
+  font-size: 1.0rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  transition: color 0.12s;
+}
+
+.titleLink:hover { color: var(--accent-hover); }
+
+.titleText {
+  font-size: 1.0rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.rating {
+  font-size: 0.78rem;
+  color: var(--star);
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+
+/* ── Notes ───────────────────────────────────────────────────────────────── */
+
+.notes {
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  word-break: break-word;
+}
+
+/* ── Tags ────────────────────────────────────────────────────────────────── */
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.tag {
+  background: var(--tag-bg);
+  color: var(--tag-text);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+/* ── Date ────────────────────────────────────────────────────────────────── */
+
+.date {
+  font-size: 0.68rem;
+  color: var(--text-faint);
+}

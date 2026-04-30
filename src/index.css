@@ -1,13 +1,65 @@
 *, *::before, *::after { box-sizing: border-box; }
 
+/* ── Theme tokens ─────────────────────────────────────────────────────────── */
+
+[data-theme="dark"] {
+  --bg:            #0a0e14;
+  --surface:       #111722;
+  --surface2:      #1a2030;
+  --surface3:      #202840;
+  --border:        #2a3348;
+  --border-soft:   #1e2a3a;
+  --text:          #e8edf5;
+  --text-muted:    #7a8aaa;
+  --text-faint:    #445066;
+  --accent:        #6d6af0;
+  --accent-hover:  #8b89f5;
+  --accent-glow:   rgba(109,106,240,0.15);
+  --danger:        #f05f5f;
+  --danger-bg:     rgba(240,95,95,0.1);
+  --star:          #f0b429;
+  --tag-bg:        rgba(109,106,240,0.12);
+  --tag-text:      #a5a3f8;
+  --shadow:        0 8px 32px rgba(0,0,0,0.5);
+  --shadow-sm:     0 2px 8px rgba(0,0,0,0.3);
+  color-scheme:    dark;
+}
+
+[data-theme="light"] {
+  --bg:            #f0f4f8;
+  --surface:       #ffffff;
+  --surface2:      #eef2f7;
+  --surface3:      #e4eaf2;
+  --border:        #cbd5e1;
+  --border-soft:   #e2e8f0;
+  --text:          #1a2236;
+  --text-muted:    #607090;
+  --text-faint:    #a8b8cc;
+  --accent:        #5b50e8;
+  --accent-hover:  #4338ca;
+  --accent-glow:   rgba(91,80,232,0.1);
+  --danger:        #e03e3e;
+  --danger-bg:     rgba(224,62,62,0.08);
+  --star:          #d49900;
+  --tag-bg:        rgba(91,80,232,0.08);
+  --tag-text:      #5b50e8;
+  --shadow:        0 8px 32px rgba(0,0,0,0.1);
+  --shadow-sm:     0 2px 8px rgba(0,0,0,0.06);
+  color-scheme:    light;
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+
 body {
   margin: 0;
-  background: #0a0e14;
-  color: #e8edf5;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
   font-size: 16px;
   line-height: 1.5;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.25s, color 0.25s;
 }
 
 #root { width: 100%; min-height: 100vh; }
@@ -17,3 +69,8 @@ p { margin: 0; }
 button { font-family: inherit; cursor: pointer; }
 input, textarea, select { font-family: inherit; }
 a { text-decoration: none; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
