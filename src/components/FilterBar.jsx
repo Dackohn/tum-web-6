@@ -6,6 +6,7 @@ export function FilterBar({
   category, onCategory,
   status, onStatus,
   starredOnly, onStarredOnly,
+  sort, onSort,
   total, filtered,
 }) {
   const hasFilter = search || category || status || starredOnly;
@@ -16,7 +17,7 @@ export function FilterBar({
         <input
           className={styles.search}
           type="search"
-          placeholder="Search title, notes, tags…"
+          placeholder="Search title, notes, tags… (N to add)"
           value={search}
           onChange={e => onSearch(e.target.value)}
         />
@@ -33,6 +34,14 @@ export function FilterBar({
           <option value="queued">Queued</option>
           <option value="in-progress">In Progress</option>
           <option value="done">Done</option>
+        </select>
+
+        <select className={styles.select} value={sort} onChange={e => onSort(e.target.value)}>
+          <option value="newest">↓ Newest</option>
+          <option value="oldest">↑ Oldest</option>
+          <option value="a-z">A → Z</option>
+          <option value="z-a">Z → A</option>
+          <option value="rating">★ Rating</option>
         </select>
 
         <button

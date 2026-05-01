@@ -6,20 +6,32 @@ import { ResourceForm } from './components/ResourceForm.jsx';
 import { FilterBar } from './components/FilterBar.jsx';
 import styles from './App.module.css';
 
+function applySort(list, sort) {
+  const copy = [...list];
+  switch (sort) {
+    case 'oldest': return copy.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    case 'a-z':    return copy.sort((a, b) => a.title.localeCompare(b.title));
+    case 'z-a':    return copy.sort((a, b) => b.title.localeCompare(a.title));
+    case 'rating': return copy.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+    default:       return copy.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+}
+
 export default function App() {
   const { resources, loading, add, edit, remove, toggleStar, cycleStatus } = useResources();
   const { theme, toggle: toggleTheme } = useTheme();
 
-  const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing]   = useState(null);
-  const [search, setSearch]     = useState('');
-  const [category, setCategory] = useState('');
-  const [status, setStatus]     = useState('');
+  const [formOpen, setFormOpen]       = useState(false);
+  const [editing, setEditing]         = useState(null);
+  const [search, setSearch]           = useState('');
+  const [category, setCategory]       = useState('');
+  const [status, setStatus]           = useState('');
   const [starredOnly, setStarredOnly] = useState(false);
+  const [sort, setSort]               = useState('newest');
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return resources.filter(r => {
+    const list = resources.filter(r => {
       if (starredOnly && !r.starred) return false;
       if (category && r.category !== category) return false;
       if (status && r.status !== status) return false;
@@ -31,7 +43,8 @@ export default function App() {
       )) return false;
       return true;
     });
-  }, [resources, search, category, status, starredOnly]);
+    return applySort(list, sort);
+  }, [resources, search, category, status, starredOnly, sort]);
 
   function openAdd()   { setEditing(null); setFormOpen(true); }
   function openEdit(r) { setEditing(r); setFormOpen(true); }
@@ -64,6 +77,7 @@ export default function App() {
             category={category} onCategory={setCategory}
             status={status} onStatus={setStatus}
             starredOnly={starredOnly} onStarredOnly={setStarredOnly}
+            sort={sort} onSort={setSort}
             total={resources.length} filtered={filtered.length}
           />
         )}
