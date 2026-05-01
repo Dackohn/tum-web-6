@@ -55,7 +55,7 @@ export function FilterBar({
         {hasFilter && (
           <button
             className={styles.clearBtn}
-            onClick={() => { onSearch(''); onCategory(''); onStatus(''); }}
+            onClick={() => { onSearch(''); onCategory(''); onStatus(''); onStarredOnly(() => false); }}
           >
             Clear
           </button>
