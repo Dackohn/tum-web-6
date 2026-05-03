@@ -69,6 +69,140 @@
 
 .addBtn:hover { background: var(--accent-hover); }
 
+/* ── Pipeline tabs ───────────────────────────────────────────────────────── */
+
+.tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 0 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  padding: 10px 14px 8px;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+  font-family: inherit;
+  position: relative;
+  margin-bottom: -1px;
+  cursor: pointer;
+}
+
+.tab:hover { color: var(--text); }
+
+.tabActive {
+  color: var(--text);
+  font-weight: 600;
+  border-bottom-color: var(--accent);
+}
+
+.tabDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tabCount {
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--surface2);
+  border-radius: 4px;
+  padding: 1px 5px;
+  color: var(--text-muted);
+}
+
+.tabBar {
+  position: absolute;
+  bottom: -2px;
+  left: 14px;
+  right: 14px;
+  height: 2px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  opacity: 0.5;
+}
+
+.tabActive .tabBar { opacity: 1; }
+
+.tabBarFill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.newFolderBtn {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-faint);
+  padding: 10px 10px 8px;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  transition: color 0.15s;
+  font-family: inherit;
+  cursor: pointer;
+  margin-bottom: -1px;
+}
+
+.newFolderBtn:hover { color: var(--accent); }
+
+/* ── Active folder header ────────────────────────────────────────────────── */
+
+.folderHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 24px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  border-left: 3px solid;
+}
+
+.folderDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.folderName {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+}
+
+.folderEditBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-faint);
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  transition: all 0.12s;
+  font-family: inherit;
+}
+
+.folderEditBtn:hover { background: var(--surface3); color: var(--text-muted); }
+.folderDeleteBtn:hover { color: var(--danger) !important; }
+
 /* ── Main ────────────────────────────────────────────────────────────────── */
 
 .main {
@@ -80,6 +214,87 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+}
+
+/* ── Stats section ───────────────────────────────────────────────────────── */
+
+.statsSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.stats {
+  display: flex;
+  gap: 6px;
+}
+
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+  min-width: 72px;
+}
+
+.stat:hover { border-color: var(--text-faint); }
+.statActive  { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-glow); }
+
+.statNum {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.blue  { color: #60a5fa; }
+.green { color: #4ade80; }
+
+.statLabel {
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 600;
+}
+
+/* ── Progress bar ────────────────────────────────────────────────────────── */
+
+.progressWrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 160px;
+}
+
+.progressBar {
+  flex: 1;
+  max-width: 300px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--surface3);
+  overflow: hidden;
+  display: flex;
+}
+
+.progDone     { transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+.progProgress { background: #60a5fa; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+.progQueued   { background: var(--border); transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+
+.progressLabel {
+  font-size: 0.73rem;
+  color: var(--text-faint);
+  white-space: nowrap;
 }
 
 /* ── Grid ────────────────────────────────────────────────────────────────── */

@@ -7,7 +7,7 @@ export const CATEGORY_ICONS = {
   book: '📖', podcast: '🎙️', other: '🔗',
 };
 
-const EMPTY = { title: '', url: '', category: 'article', status: 'queued', tags: '', notes: '', rating: 0 };
+const EMPTY = { title: '', url: '', category: 'article', status: 'queued', tags: '', notes: '', rating: 0, folderId: '' };
 
 function StarRating({ value, onChange }) {
   return (
@@ -27,7 +27,7 @@ function StarRating({ value, onChange }) {
   );
 }
 
-export function ResourceForm({ initial, onSubmit, onCancel }) {
+export function ResourceForm({ initial, onSubmit, onCancel, folders = [] }) {
   const [form, setForm] = useState(EMPTY);
 
   useEffect(() => {
@@ -40,6 +40,7 @@ export function ResourceForm({ initial, onSubmit, onCancel }) {
         tags: initial.tags.join(', '),
         notes: initial.notes,
         rating: initial.rating,
+        folderId: initial.folderId || '',
       });
     } else {
       setForm(EMPTY);
@@ -57,6 +58,7 @@ export function ResourceForm({ initial, onSubmit, onCancel }) {
       ...form,
       tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
       rating: Number(form.rating),
+      folderId: form.folderId || null,
     });
   }
 
@@ -133,6 +135,18 @@ export function ResourceForm({ initial, onSubmit, onCancel }) {
               placeholder="react, performance, security…"
             />
           </label>
+
+          {folders.length > 0 && (
+            <label className={styles.label}>
+              Pipeline
+              <select className={styles.select} value={form.folderId} onChange={set('folderId')}>
+                <option value="">No pipeline</option>
+                {folders.map(f => (
+                  <option key={f.id} value={f.id}>{f.name}</option>
+                ))}
+              </select>
+            </label>
+          )}
 
           <label className={styles.label}>
             Notes
