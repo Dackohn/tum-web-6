@@ -168,9 +168,38 @@
   border-radius: 4px;
 }
 
+/* ── Read more ───────────────────────────────────────────────────────────── */
+
+.readMore {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-size: 0.75rem;
+  padding: 0;
+  margin-top: 3px;
+  display: block;
+  opacity: 0.8;
+  transition: opacity 0.12s;
+}
+
+.readMore:hover { opacity: 1; }
+
 /* ── Date ────────────────────────────────────────────────────────────────── */
 
 .date {
   font-size: 0.68rem;
   color: var(--text-faint);
+}
+
+/* ── Highlight pulse for random pick ────────────────────────────────────── */
+
+@keyframes pulse-border {
+  0%   { box-shadow: 0 0 0 0 var(--accent-glow); }
+  60%  { box-shadow: 0 0 0 8px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+.highlight {
+  border-color: var(--accent) !important;
+  animation: pulse-border 1s ease 3;
 }

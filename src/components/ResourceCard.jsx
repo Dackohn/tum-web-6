@@ -4,6 +4,7 @@ import styles from './ResourceCard.module.css';
 
 const STATUS_LABEL = { queued: 'Queued', 'in-progress': 'In Progress', done: 'Done' };
 const STATUS_NEXT  = { queued: 'in-progress', 'in-progress': 'done', done: 'queued' };
+const NOTES_LIMIT  = 140;
 
 function StarDisplay({ value }) {
   if (!value) return null;
@@ -14,17 +15,23 @@ function StarDisplay({ value }) {
   );
 }
 
-export function ResourceCard({ resource, onEdit, onDelete, onToggleStar, onCycleStatus }) {
+export function ResourceCard({ resource, onEdit, onDelete, onToggleStar, onCycleStatus, highlight }) {
   const [confirmDel, setConfirmDel] = useState(false);
+  const [notesExpanded, setNotesExpanded] = useState(false);
 
   function handleDelete() {
     if (confirmDel) { onDelete(resource.id); }
     else { setConfirmDel(true); setTimeout(() => setConfirmDel(false), 2500); }
   }
 
+  const longNotes = resource.notes && resource.notes.length > NOTES_LIMIT;
+  const notesText = longNotes && !notesExpanded
+    ? resource.notes.slice(0, NOTES_LIMIT).trimEnd() + '…'
+    : resource.notes;
+
   return (
     <div
-      className={`${styles.card} ${styles[resource.status.replace('-', '_')]}`}
+      className={`${styles.card} ${styles[resource.status.replace('-', '_')]} ${highlight ? styles.highlight : ''}`}
       id={`card-${resource.id}`}
     >
       <div className={styles.header}>
@@ -77,7 +84,14 @@ export function ResourceCard({ resource, onEdit, onDelete, onToggleStar, onCycle
       </div>
 
       {resource.notes && (
-        <p className={styles.notes}>{resource.notes}</p>
+        <div>
+          <p className={styles.notes}>{notesText}</p>
+          {longNotes && (
+            <button className={styles.readMore} onClick={() => setNotesExpanded(v => !v)}>
+              {notesExpanded ? 'Show less' : 'Read more'}
+            </button>
+          )}
+        </div>
       )}
 
       {resource.tags.length > 0 && (
