@@ -21,6 +21,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -29,11 +31,45 @@ jobs:
 
       - run: npm ci
 
-      - name: Build
+      # ── Build current version → dist/ ──────────────────────────────────
+      - name: Build current version
         run: npm run build
         env:
           VITE_BASE_URL: /${{ github.event.repository.name }}/
 
+      # ── Snapshot v1: basic app with storage, no filters (Apr 30) ───────
+      - name: Checkout snapshot v1
+        run: git worktree add /tmp/snap-v1 71e679f
+
+      - name: Build snapshot v1
+        working-directory: /tmp/snap-v1
+        run: |
+          npm install --legacy-peer-deps
+          VITE_BASE_URL=/${{ github.event.repository.name }}/v1/ npm run build
+
+      - name: Copy snapshot v1 into dist
+        run: |
+          mkdir -p dist/v1
+          cp -r /tmp/snap-v1/dist/. dist/v1/
+          git worktree remove /tmp/snap-v1
+
+      # ── Snapshot v2: pipelines added, pre-redesign (May 3) ─────────────
+      - name: Checkout snapshot v2
+        run: git worktree add /tmp/snap-v2 cd4804b
+
+      - name: Build snapshot v2
+        working-directory: /tmp/snap-v2
+        run: |
+          npm install --legacy-peer-deps
+          VITE_BASE_URL=/${{ github.event.repository.name }}/v2/ npm run build
+
+      - name: Copy snapshot v2 into dist
+        run: |
+          mkdir -p dist/v2
+          cp -r /tmp/snap-v2/dist/. dist/v2/
+          git worktree remove /tmp/snap-v2
+
+      # ── Deploy all three versions together ──────────────────────────────
       - uses: actions/configure-pages@v4
 
       - uses: actions/upload-pages-artifact@v3
