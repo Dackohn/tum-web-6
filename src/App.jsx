@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useResources } from './hooks/useResources.js';
 import { useFolders } from './hooks/useFolders.js';
 import { useTheme } from './hooks/useTheme.js';
@@ -28,6 +28,16 @@ function getStats(list) {
     done:       list.filter(r => r.status === 'done').length,
     total:      list.length,
   };
+}
+
+function exportJSON(resources) {
+  const blob = new Blob([JSON.stringify(resources, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `devqueue-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ── Progress bar ───────────────────────────────────────────────────────────
@@ -144,6 +154,44 @@ function StatsRow({ stats, statusFilter, onStatusFilter, folder }) {
   );
 }
 
+// ── Random pick modal ──────────────────────────────────────────────────────
+
+function RandomPickModal({ resource, onClose, onPickAnother, onStartReading, canPickAnother }) {
+  return (
+    <div className={styles.overlay} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className={styles.pickModal}>
+        <div className={styles.pickHeader}>
+          <span>🎲</span>
+          <h2 className={styles.pickTitle}>Your next read</h2>
+          <button className={styles.closeBtn} onClick={onClose}>✕</button>
+        </div>
+        <div className={styles.pickBody}>
+          <span className={styles.pickCategory}>{CATEGORY_ICONS[resource.category]} {resource.category}</span>
+          <h3 className={styles.pickName}>
+            {resource.url
+              ? <a href={resource.url} target="_blank" rel="noopener noreferrer" className={styles.pickLink}>{resource.title} ↗</a>
+              : resource.title}
+          </h3>
+          {resource.notes && <p className={styles.pickNotes}>{resource.notes}</p>}
+          {resource.tags.length > 0 && (
+            <div className={styles.pickTags}>
+              {resource.tags.map(t => <span key={t} className={styles.tag}>#{t}</span>)}
+            </div>
+          )}
+        </div>
+        <div className={styles.pickActions}>
+          {canPickAnother && (
+            <button className={styles.btnSecondary} onClick={onPickAnother}>🎲 Another</button>
+          )}
+          <button className={styles.btnPrimary} onClick={() => onStartReading(resource)}>
+            Start reading →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Empty state ────────────────────────────────────────────────────────────
 
 function EmptyState({ hasFilter, onAdd }) {
@@ -181,6 +229,21 @@ export default function App() {
   const [status, setStatus]         = useState('');
   const [starredOnly, setStarredOnly] = useState(false);
   const [sort, setSort]             = useState('newest');
+  const [randomPick, setRandomPick] = useState(null);
+  const [highlightId, setHighlightId] = useState(null);
+  const importRef = useRef(null);
+
+  // Keyboard shortcut N = new resource
+  useEffect(() => {
+    function handler(e) {
+      if (formOpen || randomPick || folderModal !== null) return;
+      const tag = e.target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      if (e.key === 'n' || e.key === 'N') openAdd();
+    }
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [formOpen, randomPick, folderModal]);
 
   const scopedResources = useMemo(() => {
     if (!activeFolderId) return resources;
@@ -208,7 +271,10 @@ export default function App() {
   const scopedStats = useMemo(() => getStats(scopedResources), [scopedResources]);
   const activeFolder = folders.find(f => f.id === activeFolderId) || null;
 
-  function openAdd()   { setEditing(null); setFormOpen(true); }
+  function openAdd()   {
+    setEditing(null);
+    setFormOpen(true);
+  }
   function openEdit(r) { setEditing(r); setFormOpen(true); }
   function closeForm() { setFormOpen(false); setEditing(null); }
 
@@ -238,20 +304,103 @@ export default function App() {
     if (activeFolderId === folderId) setActiveFolderId(null);
   }
 
+  // Random pick
+  const pickRandom = useCallback(() => {
+    const queued = scopedResources.filter(r => r.status === 'queued');
+    if (!queued.length) return;
+    setRandomPick(queued[Math.floor(Math.random() * queued.length)]);
+  }, [scopedResources]);
+
+  function handlePickAnother() {
+    const queued = scopedResources.filter(r => r.status === 'queued' && r.id !== randomPick?.id);
+    if (!queued.length) return;
+    setRandomPick(queued[Math.floor(Math.random() * queued.length)]);
+  }
+
+  async function handleStartReading(resource) {
+    await cycleStatus(resource.id, resource.status);
+    setRandomPick(null);
+    setHighlightId(resource.id);
+    setTimeout(() => setHighlightId(null), 4000);
+    setTimeout(() => {
+      document.getElementById(`card-${resource.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  }
+
+  // Import / Export
+  function handleExport() { exportJSON(resources); }
+
+  function handleImportFile(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!Array.isArray(data)) throw new Error();
+        const replace = window.confirm(
+          `Import ${data.length} resources?\n\nOK = replace all\nCancel = merge (skip duplicates)`
+        );
+        if (replace) {
+          for (const r of resources) await remove(r.id);
+          for (const r of data)      await add(r);
+        } else {
+          const ids = new Set(resources.map(r => r.id));
+          for (const r of data) if (!ids.has(r.id)) await add(r);
+        }
+      } catch {
+        alert('Invalid file — expected a Dev Queue JSON export.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  }
+
+  const hasQueued = scopedResources.some(r => r.status === 'queued');
+  const canPickAnother = scopedResources.filter(r => r.status === 'queued' && r.id !== randomPick?.id).length > 0;
+
   return (
     <div className={styles.app}>
+      {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <h1 className={styles.logo}>Dev Queue</h1>
+          <h1 className={styles.logo}>
+            <svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect width="32" height="32" rx="7" fill="#6d6af0"/>
+              <path d="M9 5h14a1.5 1.5 0 0 1 1.5 1.5V26l-8.5-5-8.5 5V6.5A1.5 1.5 0 0 1 9 5Z" fill="white" opacity="0.9"/>
+              <path d="M12.5 15.5l2.5 2.5 4.5-4.5" stroke="#6d6af0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span>Dev Queue</span>
+          </h1>
+          <div className={styles.divider} />
+          <p className={styles.tagline}>// track what you're learning</p>
         </div>
         <div className={styles.headerRight}>
+          {scopedResources.length > 0 && (
+            <button
+              className={styles.iconToolBtn}
+              onClick={pickRandom}
+              disabled={!hasQueued}
+              title={hasQueued ? 'Pick a random queued resource' : 'No queued resources'}
+            >
+              🎲 Surprise me
+            </button>
+          )}
+          {resources.length > 0 && (
+            <button className={styles.iconToolBtn} onClick={handleExport} title="Export as JSON">↓ Export</button>
+          )}
+          <button className={styles.iconToolBtn} onClick={() => importRef.current?.click()} title="Import JSON">
+            ↑ Import
+          </button>
+          <input ref={importRef} type="file" accept=".json" style={{ display: 'none' }} onChange={handleImportFile} />
           <button className={styles.themeBtn} onClick={toggleTheme} title="Toggle theme">
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
-          <button className={styles.addBtn} onClick={openAdd} title="Add resource">+ Add</button>
+          <button className={styles.addBtn} onClick={openAdd} title="Add resource (N)">+ Add</button>
         </div>
       </header>
 
+      {/* Pipeline tabs */}
       {(folders.length > 0 || resources.length > 0) && (
         <PipelineTabs
           folders={folders}
@@ -262,6 +411,7 @@ export default function App() {
         />
       )}
 
+      {/* Active folder header with edit/delete */}
       {activeFolder && (
         <div className={styles.folderHeader} style={{ borderLeftColor: activeFolder.color }}>
           <span className={styles.folderDot} style={{ background: activeFolder.color }} />
@@ -282,6 +432,7 @@ export default function App() {
       )}
 
       <main className={styles.main}>
+        {/* Stats + progress */}
         {scopedResources.length > 0 && (
           <StatsRow
             stats={scopedStats}
@@ -291,6 +442,7 @@ export default function App() {
           />
         )}
 
+        {/* Filters */}
         {scopedResources.length > 0 && (
           <FilterBar
             search={search} onSearch={setSearch}
@@ -302,6 +454,7 @@ export default function App() {
           />
         )}
 
+        {/* Grid */}
         {loading ? (
           <p className={styles.loading}>Loading…</p>
         ) : filtered.length === 0 ? (
@@ -316,12 +469,14 @@ export default function App() {
                 onDelete={remove}
                 onToggleStar={toggleStar}
                 onCycleStatus={cycleStatus}
+                highlight={r.id === highlightId}
               />
             ))}
           </div>
         )}
       </main>
 
+      {/* Modals */}
       {formOpen && (
         <ResourceForm
           initial={editing}
@@ -336,6 +491,16 @@ export default function App() {
           initial={editingFolder}
           onSubmit={handleFolderSubmit}
           onCancel={() => { setFolderModal(null); setEditingFolder(null); }}
+        />
+      )}
+
+      {randomPick && (
+        <RandomPickModal
+          resource={randomPick}
+          onClose={() => setRandomPick(null)}
+          onPickAnother={handlePickAnother}
+          onStartReading={handleStartReading}
+          canPickAnother={canPickAnother}
         />
       )}
     </div>

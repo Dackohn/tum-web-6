@@ -76,4 +76,13 @@
 .count {
   font-size: 0.72rem;
   color: var(--text-faint);
+  font-family: 'Fira Code', monospace;
+}
+
+/* ── Mobile ──────────────────────────────────────────────────────────────── */
+
+@media (max-width: 500px) {
+  .search, .select { padding: 11px 12px; font-size: 1rem; min-height: 44px; }
+  .starBtn, .clearBtn { padding: 11px 14px; font-size: 0.88rem; min-height: 44px; }
+  .search { min-width: 100%; }
 }
