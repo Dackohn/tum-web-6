@@ -364,7 +364,16 @@ export default function App() {
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <h1 className={styles.logo}>Dev Queue</h1>
+          <h1 className={styles.logo}>
+            <svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect width="32" height="32" rx="7" fill="#6d6af0"/>
+              <path d="M9 5h14a1.5 1.5 0 0 1 1.5 1.5V26l-8.5-5-8.5 5V6.5A1.5 1.5 0 0 1 9 5Z" fill="white" opacity="0.9"/>
+              <path d="M12.5 15.5l2.5 2.5 4.5-4.5" stroke="#6d6af0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span>Dev Queue</span>
+          </h1>
+          <div className={styles.divider} />
+          <p className={styles.tagline}>// track what you're learning</p>
         </div>
         <div className={styles.headerRight}>
           {scopedResources.length > 0 && (

@@ -46,6 +46,7 @@
   font-size: 0.68rem;
   color: var(--text-faint);
   text-transform: capitalize;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
   white-space: nowrap;
 }
 
@@ -151,6 +152,20 @@
   word-break: break-word;
 }
 
+.readMore {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-size: 0.75rem;
+  padding: 0;
+  margin-top: 3px;
+  display: block;
+  opacity: 0.8;
+  transition: opacity 0.12s;
+}
+
+.readMore:hover { opacity: 1; }
+
 /* ── Tags ────────────────────────────────────────────────────────────────── */
 
 .tags {
@@ -166,29 +181,29 @@
   font-weight: 600;
   padding: 2px 7px;
   border-radius: 4px;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
 }
-
-/* ── Read more ───────────────────────────────────────────────────────────── */
-
-.readMore {
-  background: transparent;
-  border: none;
-  color: var(--accent);
-  font-size: 0.75rem;
-  padding: 0;
-  margin-top: 3px;
-  display: block;
-  opacity: 0.8;
-  transition: opacity 0.12s;
-}
-
-.readMore:hover { opacity: 1; }
 
 /* ── Date ────────────────────────────────────────────────────────────────── */
 
 .date {
   font-size: 0.68rem;
   color: var(--text-faint);
+  font-family: 'Fira Code', monospace;
+}
+
+/* ── Mobile ──────────────────────────────────────────────────────────────── */
+
+@media (max-width: 500px) {
+  .card { padding: 14px 14px 14px 16px; gap: 10px; }
+  .titleLink, .titleText { font-size: 1.05rem; }
+  .notes { font-size: 0.88rem; }
+  .category { font-size: 0.75rem; }
+  .statusPill { font-size: 0.72rem; padding: 4px 10px; }
+  .actions { opacity: 1; } /* always visible on mobile */
+  .iconBtn { width: 34px; height: 34px; font-size: 1rem; }
+  .tag { font-size: 0.75rem; padding: 3px 9px; }
+  .date { font-size: 0.72rem; }
 }
 
 /* ── Highlight pulse for random pick ────────────────────────────────────── */
