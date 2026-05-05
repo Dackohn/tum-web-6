@@ -1,4 +1,4 @@
-import { folderAdapter as adapter } from './storage.js';
+import { folderAdapter as adapter } from './apiAdapter.js';
 
 export const FOLDER_COLORS = [
   '#6366f1', '#3b82f6', '#06b6d4', '#10b981',

@@ -1,4 +1,4 @@
-import { resourceAdapter as adapter } from './storage.js';
+import { resourceAdapter as adapter } from './apiAdapter.js';
 
 export const STATUS_CYCLE = ['queued', 'in-progress', 'done'];
 
