@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, lab7]
 
 permissions:
   contents: read
@@ -69,7 +69,25 @@ jobs:
           cp -r /tmp/snap-v2/dist/. dist/v2/
           git worktree remove --force /tmp/snap-v2
 
-      # ── Deploy all three versions together ──────────────────────────────
+      # ── lab7: backend-integrated version ───────────────────────────────
+      - name: Checkout lab7 branch
+        run: git worktree add /tmp/snap-lab7 origin/lab7
+
+      - name: Build lab7
+        working-directory: /tmp/snap-lab7
+        run: |
+          npm install --legacy-peer-deps
+          VITE_BASE_URL=/${{ github.event.repository.name }}/lab7/ \
+          VITE_API_BASE=${{ vars.VITE_API_BASE }} \
+          npm run build
+
+      - name: Copy lab7 into dist
+        run: |
+          mkdir -p dist/lab7
+          cp -r /tmp/snap-lab7/dist/. dist/lab7/
+          git worktree remove --force /tmp/snap-lab7
+
+      # ── Deploy all versions together ────────────────────────────────────
       - uses: actions/configure-pages@v4
 
       - uses: actions/upload-pages-artifact@v3
