@@ -51,7 +51,7 @@ jobs:
         run: |
           mkdir -p dist/v1
           cp -r /tmp/snap-v1/dist/. dist/v1/
-          git worktree remove /tmp/snap-v1
+          git worktree remove --force /tmp/snap-v1
 
       # ── Snapshot v2: pipelines added, pre-redesign (May 3) ─────────────
       - name: Checkout snapshot v2
@@ -67,7 +67,7 @@ jobs:
         run: |
           mkdir -p dist/v2
           cp -r /tmp/snap-v2/dist/. dist/v2/
-          git worktree remove /tmp/snap-v2
+          git worktree remove --force /tmp/snap-v2
 
       # ── Deploy all three versions together ──────────────────────────────
       - uses: actions/configure-pages@v4
