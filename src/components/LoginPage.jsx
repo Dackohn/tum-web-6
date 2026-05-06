@@ -2,32 +2,37 @@ import { useState } from 'react';
 import { login } from '../api/authClient.js';
 import styles from './LoginPage.module.css';
 
-const ROLES = [
-  { value: 'ADMIN',   label: 'Admin',   desc: 'Read, write & delete' },
-  { value: 'WRITER',  label: 'Writer',  desc: 'Read & write' },
-  { value: 'VISITOR', label: 'Visitor', desc: 'Read only' },
+const TEST_ACCOUNTS = [
+  { username: 'alice',   password: 'alice123',   role: 'Admin',   desc: 'read, write & delete' },
+  { username: 'bob',     password: 'bob123',     role: 'Writer',  desc: 'read & write' },
+  { username: 'charlie', password: 'charlie123', role: 'Visitor', desc: 'read only' },
 ];
 
 export function LoginPage({ onLogin }) {
   const [username, setUsername] = useState('');
-  const [role, setRole]         = useState('ADMIN');
+  const [password, setPassword] = useState('');
   const [error, setError]       = useState('');
   const [loading, setLoading]   = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const name = username.trim();
-    if (!name) { setError('Enter a username to continue.'); return; }
+    if (!username.trim() || !password) { setError('Enter your username and password.'); return; }
     setError('');
     setLoading(true);
     try {
-      const user = await login(name, role);
+      const user = await login(username.trim(), password);
       onLogin(user);
-    } catch {
-      setError('Could not reach the server. Is the backend running?');
+    } catch (err) {
+      setError(err.message || 'Could not reach the server.');
     } finally {
       setLoading(false);
     }
+  }
+
+  function fillAccount(account) {
+    setUsername(account.username);
+    setPassword(account.password);
+    setError('');
   }
 
   return (
@@ -59,28 +64,17 @@ export function LoginPage({ onLogin }) {
             />
           </label>
 
-          <fieldset className={styles.fieldset}>
-            <legend className={styles.label}>Role</legend>
-            <div className={styles.roleGroup}>
-              {ROLES.map(r => (
-                <label
-                  key={r.value}
-                  className={`${styles.roleOption} ${role === r.value ? styles.roleActive : ''}`}
-                >
-                  <input
-                    type="radio"
-                    name="role"
-                    value={r.value}
-                    checked={role === r.value}
-                    onChange={() => setRole(r.value)}
-                    className={styles.roleRadio}
-                  />
-                  <span className={styles.roleName}>{r.label}</span>
-                  <span className={styles.roleDesc}>{r.desc}</span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
+          <label className={styles.label}>
+            Password
+            <input
+              className={styles.input}
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              autoComplete="current-password"
+            />
+          </label>
 
           {error && <p className={styles.error}>{error}</p>}
 
@@ -88,6 +82,25 @@ export function LoginPage({ onLogin }) {
             {loading ? 'Connecting…' : 'Log in →'}
           </button>
         </form>
+
+        <div className={styles.accounts}>
+          <p className={styles.accountsLabel}>Test accounts</p>
+          <div className={styles.accountList}>
+            {TEST_ACCOUNTS.map(a => (
+              <button
+                key={a.username}
+                className={styles.accountChip}
+                type="button"
+                onClick={() => fillAccount(a)}
+                title={`Log in as ${a.username} (${a.role})`}
+              >
+                <span className={styles.accountName}>{a.username}</span>
+                <span className={styles.accountRole}>{a.role}</span>
+                <span className={styles.accountDesc}>{a.desc}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

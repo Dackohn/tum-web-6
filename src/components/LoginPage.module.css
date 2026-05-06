@@ -151,3 +151,66 @@
 
 .btn:hover:not(:disabled) { opacity: 0.88; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.accounts {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.accountsLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.accountList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.accountChip {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+  font-family: inherit;
+  width: 100%;
+}
+
+.accountChip:hover {
+  border-color: #6d6af0;
+  background: color-mix(in srgb, #6d6af0 6%, transparent);
+}
+
+.accountName {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  min-width: 4.5rem;
+  font-family: 'Fira Code', monospace;
+}
+
+.accountRole {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6d6af0;
+  min-width: 4rem;
+}
+
+.accountDesc {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+}
