@@ -538,6 +538,7 @@ function DevQueue({ user, onLogout }) {
       {adminOpen && (
         <AdminPanel
           currentUser={user.username}
+          workspace={user.workspace}
           onClose={() => setAdminOpen(false)}
         />
       )}

@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
-import { deleteUser, listUsers, registerUser } from '../api/authClient.js';
+import { addMember, deleteMember, listMembers } from '../api/authClient.js';
 import styles from './AdminPanel.module.css';
-
-const ROLES = ['ADMIN', 'WRITER', 'VISITOR'];
 
 const ROLE_BADGE = {
   ADMIN:   styles.badgeAdmin,
@@ -10,8 +8,8 @@ const ROLE_BADGE = {
   VISITOR: styles.badgeVisitor,
 };
 
-export function AdminPanel({ currentUser, onClose }) {
-  const [users, setUsers]       = useState([]);
+export function AdminPanel({ currentUser, workspace, onClose }) {
+  const [members, setMembers]   = useState([]);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState('');
 
@@ -22,23 +20,20 @@ export function AdminPanel({ currentUser, onClose }) {
   const [createError, setCreateError] = useState('');
 
   useEffect(() => {
-    listUsers()
-      .then(setUsers)
+    listMembers()
+      .then(setMembers)
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
 
-  async function handleRegister(e) {
+  async function handleAdd(e) {
     e.preventDefault();
-    if (!newUsername.trim() || !newPassword) {
-      setCreateError('Username and password are required.');
-      return;
-    }
+    if (!newUsername.trim() || !newPassword) { setCreateError('Username and password required.'); return; }
     setCreateError('');
     setCreating(true);
     try {
-      const user = await registerUser(newUsername.trim(), newPassword, newRole);
-      setUsers(prev => [...prev, user].sort((a, b) => a.username.localeCompare(b.username)));
+      const member = await addMember(newUsername.trim(), newPassword, newRole);
+      setMembers(prev => [...prev, member].sort((a, b) => a.username.localeCompare(b.username)));
       setNewUsername('');
       setNewPassword('');
       setNewRole('VISITOR');
@@ -49,11 +44,11 @@ export function AdminPanel({ currentUser, onClose }) {
     }
   }
 
-  async function handleDelete(username) {
-    if (!window.confirm(`Delete user "${username}"? Their data will remain on the server.`)) return;
+  async function handleRemove(username) {
+    if (!window.confirm(`Remove "${username}" from this workspace?`)) return;
     try {
-      await deleteUser(username);
-      setUsers(prev => prev.filter(u => u.username !== username));
+      await deleteMember(username);
+      setMembers(prev => prev.filter(m => m.username !== username));
     } catch (e) {
       setError(e.message);
     }
@@ -63,27 +58,28 @@ export function AdminPanel({ currentUser, onClose }) {
     <div className={styles.overlay} onClick={e => e.target === e.currentTarget && onClose()}>
       <div className={styles.panel}>
         <div className={styles.header}>
-          <h2 className={styles.title}>User Management</h2>
+          <div>
+            <h2 className={styles.title}>Workspace members</h2>
+            <p className={styles.subtitle}>{workspace}</p>
+          </div>
           <button className={styles.closeBtn} onClick={onClose}>✕</button>
         </div>
 
-        {/* User list */}
         <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>Registered users</h3>
           {loading && <p className={styles.muted}>Loading…</p>}
           {error   && <p className={styles.error}>{error}</p>}
           {!loading && !error && (
             <ul className={styles.userList}>
-              {users.map(u => (
-                <li key={u.username} className={styles.userRow}>
-                  <span className={styles.username}>{u.username}</span>
-                  <span className={`${styles.badge} ${ROLE_BADGE[u.role]}`}>{u.role}</span>
-                  <span className={styles.perms}>{u.permissions.join(', ')}</span>
-                  {u.username !== currentUser && (
+              {members.map(m => (
+                <li key={m.username} className={styles.userRow}>
+                  <span className={styles.username}>{m.username}</span>
+                  <span className={`${styles.badge} ${ROLE_BADGE[m.role]}`}>{m.role}</span>
+                  <span className={styles.perms}>{m.permissions.join(', ')}</span>
+                  {m.username !== currentUser && (
                     <button
                       className={styles.deleteBtn}
-                      onClick={() => handleDelete(u.username)}
-                      title={`Delete ${u.username}`}
+                      onClick={() => handleRemove(m.username)}
+                      title={`Remove ${m.username}`}
                     >
                       ✕
                     </button>
@@ -94,10 +90,12 @@ export function AdminPanel({ currentUser, onClose }) {
           )}
         </section>
 
-        {/* Register form */}
         <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>Register new user</h3>
-          <form onSubmit={handleRegister} className={styles.form}>
+          <h3 className={styles.sectionTitle}>Invite member</h3>
+          <p className={styles.muted} style={{ marginTop: 0 }}>
+            Members share this workspace's resources and folders.
+          </p>
+          <form onSubmit={handleAdd} className={styles.form}>
             <input
               className={styles.input}
               type="text"
@@ -119,10 +117,11 @@ export function AdminPanel({ currentUser, onClose }) {
               value={newRole}
               onChange={e => setNewRole(e.target.value)}
             >
-              {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+              <option value="WRITER">WRITER</option>
+              <option value="VISITOR">VISITOR</option>
             </select>
             <button className={styles.createBtn} type="submit" disabled={creating}>
-              {creating ? 'Creating…' : '+ Create'}
+              {creating ? 'Adding…' : '+ Add'}
             </button>
           </form>
           {createError && <p className={styles.error}>{createError}</p>}

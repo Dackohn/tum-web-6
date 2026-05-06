@@ -41,6 +41,13 @@
   margin: 0;
 }
 
+.subtitle {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  margin: 2px 0 0;
+  font-family: 'Fira Code', monospace;
+}
+
 .closeBtn {
   background: transparent;
   border: none;

@@ -1,18 +1,15 @@
 import { useState } from 'react';
-import { login } from '../api/authClient.js';
+import { login, registerAdmin } from '../api/authClient.js';
 import styles from './LoginPage.module.css';
 
-const TEST_ACCOUNTS = [
-  { username: 'alice',   password: 'alice123',   role: 'Admin',   desc: 'read, write & delete' },
-  { username: 'bob',     password: 'bob123',     role: 'Writer',  desc: 'read & write' },
-  { username: 'charlie', password: 'charlie123', role: 'Visitor', desc: 'read only' },
-];
-
 export function LoginPage({ onLogin }) {
+  const [tab, setTab]           = useState('login'); // 'login' | 'register'
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError]       = useState('');
   const [loading, setLoading]   = useState(false);
+
+  function switchTab(t) { setTab(t); setError(''); }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -20,19 +17,15 @@ export function LoginPage({ onLogin }) {
     setError('');
     setLoading(true);
     try {
-      const user = await login(username.trim(), password);
+      const user = tab === 'login'
+        ? await login(username.trim(), password)
+        : await registerAdmin(username.trim(), password);
       onLogin(user);
     } catch (err) {
       setError(err.message || 'Could not reach the server.');
     } finally {
       setLoading(false);
     }
-  }
-
-  function fillAccount(account) {
-    setUsername(account.username);
-    setPassword(account.password);
-    setError('');
   }
 
   return (
@@ -47,8 +40,28 @@ export function LoginPage({ onLogin }) {
           <span className={styles.logoText}>Dev Queue</span>
         </div>
 
-        <h1 className={styles.title}>Welcome back</h1>
-        <p className={styles.subtitle}>Your learning tracker. Your data.</p>
+        <div className={styles.tabs}>
+          <button
+            className={`${styles.tab} ${tab === 'login' ? styles.tabActive : ''}`}
+            onClick={() => switchTab('login')}
+            type="button"
+          >
+            Log in
+          </button>
+          <button
+            className={`${styles.tab} ${tab === 'register' ? styles.tabActive : ''}`}
+            onClick={() => switchTab('register')}
+            type="button"
+          >
+            Create workspace
+          </button>
+        </div>
+
+        {tab === 'register' && (
+          <p className={styles.hint}>
+            Creates a new admin workspace. You can invite writers and visitors after logging in.
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <label className={styles.label}>
@@ -72,35 +85,18 @@ export function LoginPage({ onLogin }) {
               placeholder="••••••••"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              autoComplete="current-password"
+              autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
             />
           </label>
 
           {error && <p className={styles.error}>{error}</p>}
 
           <button className={styles.btn} type="submit" disabled={loading}>
-            {loading ? 'Connecting…' : 'Log in →'}
+            {loading
+              ? 'Connecting…'
+              : tab === 'login' ? 'Log in →' : 'Create workspace →'}
           </button>
         </form>
-
-        <div className={styles.accounts}>
-          <p className={styles.accountsLabel}>Test accounts</p>
-          <div className={styles.accountList}>
-            {TEST_ACCOUNTS.map(a => (
-              <button
-                key={a.username}
-                className={styles.accountChip}
-                type="button"
-                onClick={() => fillAccount(a)}
-                title={`Log in as ${a.username} (${a.role})`}
-              >
-                <span className={styles.accountName}>{a.username}</span>
-                <span className={styles.accountRole}>{a.role}</span>
-                <span className={styles.accountDesc}>{a.desc}</span>
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );
