@@ -1,22 +1,27 @@
-import { getToken } from './tokenManager.js';
-
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
-
-async function authHeaders() {
-  const token = await getToken();
-  return {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
-  };
-}
+import { API_BASE, ensureLoggedIn, resetLogin } from './authClient.js';
 
 async function request(method, path, body) {
+  await ensureLoggedIn();
   const res = await fetch(`${API_BASE}${path}`, {
     method,
-    headers: await authHeaders(),
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
   if (res.status === 204) return null;
+  if (res.status === 401) {
+    // Cookie expired — re-login and retry once
+    resetLogin();
+    await ensureLoggedIn();
+    const retry = await fetch(`${API_BASE}${path}`, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+    if (!retry.ok) throw new Error(`API ${method} ${path} → ${retry.status}`);
+    return retry.status === 204 ? null : retry.json();
+  }
   if (!res.ok) throw new Error(`API ${method} ${path} → ${res.status}`);
   return res.json();
 }
