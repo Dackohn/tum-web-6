@@ -6,6 +6,8 @@ import { ResourceCard } from './components/ResourceCard.jsx';
 import { ResourceForm, CATEGORY_ICONS } from './components/ResourceForm.jsx';
 import { FilterBar } from './components/FilterBar.jsx';
 import { FolderModal } from './components/FolderModal.jsx';
+import { LoginPage } from './components/LoginPage.jsx';
+import { checkSession, logout, setUnauthorizedHandler } from './api/authClient.js';
 import styles from './App.module.css';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -211,9 +213,25 @@ function EmptyState({ hasFilter, onAdd }) {
   );
 }
 
-// ── App ────────────────────────────────────────────────────────────────────
+// ── Auth gate ──────────────────────────────────────────────────────────────
 
 export default function App() {
+  const [user, setUser]           = useState(null);
+  const [authChecked, setChecked] = useState(false);
+
+  useEffect(() => {
+    setUnauthorizedHandler(() => setUser(null));
+    checkSession().then(u => { setUser(u); setChecked(true); });
+  }, []);
+
+  if (!authChecked) return <p className={styles.loading}>Connecting…</p>;
+  if (!user)        return <LoginPage onLogin={setUser} />;
+  return <DevQueue user={user} onLogout={() => { logout(); setUser(null); }} />;
+}
+
+// ── Main app ───────────────────────────────────────────────────────────────
+
+function DevQueue({ user, onLogout }) {
   const { resources, loading, add, edit, remove, toggleStar, cycleStatus } = useResources();
   const { folders, add: addFolder, edit: editFolder, remove: removeFolder } = useFolders();
   const { theme, toggle: toggleTheme } = useTheme();
@@ -395,6 +413,12 @@ export default function App() {
           <input ref={importRef} type="file" accept=".json" style={{ display: 'none' }} onChange={handleImportFile} />
           <button className={styles.themeBtn} onClick={toggleTheme} title="Toggle theme">
             {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
+          <span className={styles.userChip} title={`Logged in as ${user.username} (${user.role})`}>
+            {user.username}
+          </span>
+          <button className={styles.iconToolBtn} onClick={onLogout} title="Log out">
+            Log out
           </button>
           <button className={styles.addBtn} onClick={openAdd} title="Add resource (N)">+ Add</button>
         </div>

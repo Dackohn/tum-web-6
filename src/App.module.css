@@ -88,6 +88,17 @@
 
 .iconToolBtn:disabled { opacity: 0.25; cursor: not-allowed; }
 
+.userChip {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  white-space: nowrap;
+}
+
 .themeBtn {
   background: transparent;
   border: 1px solid var(--border);
