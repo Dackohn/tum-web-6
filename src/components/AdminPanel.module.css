@@ -1,0 +1,180 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 80vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 1;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.closeBtn:hover { background: var(--surface2); }
+
+.section {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.section:last-child { border-bottom: none; }
+
+.sectionTitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.muted { color: var(--text-muted); font-size: 0.85rem; margin: 0; }
+.error { color: #ef4444; font-size: 0.85rem; margin: 0; }
+
+.userList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.userRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.username {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  font-family: 'Fira Code', monospace;
+  flex: 1;
+}
+
+.badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.badgeAdmin   { background: color-mix(in srgb, #6d6af0 15%, transparent); color: #6d6af0; }
+.badgeWriter  { background: color-mix(in srgb, #3b82f6 15%, transparent); color: #3b82f6; }
+.badgeVisitor { background: color-mix(in srgb, #8b949e 15%, transparent); color: #8b949e; }
+
+.perms {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  font-family: 'Fira Code', monospace;
+}
+
+.deleteBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-faint);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.15s;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.deleteBtn:hover { background: color-mix(in srgb, #ef4444 12%, transparent); color: #ef4444; }
+
+.form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.input {
+  flex: 1;
+  min-width: 120px;
+  padding: 0.5rem 0.7rem;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.input:focus { border-color: #6d6af0; }
+
+.select {
+  padding: 0.5rem 0.6rem;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.88rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.createBtn {
+  padding: 0.5rem 1rem;
+  border-radius: 7px;
+  border: none;
+  background: #6d6af0;
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.createBtn:hover:not(:disabled) { opacity: 0.88; }
+.createBtn:disabled { opacity: 0.5; cursor: not-allowed; }

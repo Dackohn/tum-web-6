@@ -7,6 +7,7 @@ import { ResourceForm, CATEGORY_ICONS } from './components/ResourceForm.jsx';
 import { FilterBar } from './components/FilterBar.jsx';
 import { FolderModal } from './components/FolderModal.jsx';
 import { LoginPage } from './components/LoginPage.jsx';
+import { AdminPanel } from './components/AdminPanel.jsx';
 import { checkSession, logout, setUnauthorizedHandler } from './api/authClient.js';
 import styles from './App.module.css';
 
@@ -239,6 +240,7 @@ function DevQueue({ user, onLogout }) {
   const [formOpen, setFormOpen]       = useState(false);
   const [editing, setEditing]         = useState(null);
   const [folderModal, setFolderModal] = useState(null);
+  const [adminOpen, setAdminOpen]     = useState(false);
   const [editingFolder, setEditingFolder] = useState(null);
 
   const [activeFolderId, setActiveFolderId] = useState(null);
@@ -417,6 +419,11 @@ function DevQueue({ user, onLogout }) {
           <span className={styles.userChip} title={`Logged in as ${user.username} (${user.role})`}>
             {user.username}
           </span>
+          {user.role === 'ADMIN' && (
+            <button className={styles.iconToolBtn} onClick={() => setAdminOpen(true)} title="User management">
+              Users
+            </button>
+          )}
           <button className={styles.iconToolBtn} onClick={onLogout} title="Log out">
             Log out
           </button>
@@ -525,6 +532,13 @@ function DevQueue({ user, onLogout }) {
           onPickAnother={handlePickAnother}
           onStartReading={handleStartReading}
           canPickAnother={canPickAnother}
+        />
+      )}
+
+      {adminOpen && (
+        <AdminPanel
+          currentUser={user.username}
+          onClose={() => setAdminOpen(false)}
         />
       )}
     </div>

@@ -41,3 +41,33 @@ export async function logout() {
     credentials: 'include',
   });
 }
+
+// ── User management (ADMIN only) ────────────────────────────────────────────
+
+export async function registerUser(username, password, role) {
+  const res = await fetch(`${API_BASE}/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ username, password, role }),
+  });
+  if (res.status === 409) throw new Error(`User '${username}' already exists.`);
+  if (res.status === 403) throw new Error('Admin access required.');
+  if (!res.ok) throw new Error(`Registration failed: ${res.status}`);
+  return res.json();
+}
+
+export async function listUsers() {
+  const res = await fetch(`${API_BASE}/users`, { credentials: 'include' });
+  if (!res.ok) throw new Error(`Failed to load users: ${res.status}`);
+  return res.json();
+}
+
+export async function deleteUser(username) {
+  const res = await fetch(`${API_BASE}/users/${encodeURIComponent(username)}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  if (res.status === 400) throw new Error("You can't delete your own account.");
+  if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
+}
